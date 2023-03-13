@@ -19,6 +19,10 @@ string readLine() {
     return input;
 }
 
+void outputContact(vector <Contact> contacts, int i) {
+    cout << "ID: " << contacts[i].id << ". |Imie: " << contacts[i].firstName << " |Nazwisko: " << contacts[i].lastName << " |Telefon: " << contacts[i].tel << " |Email: " << contacts[i].email << " |Adres: " << contacts[i].adress << endl;
+}
+
 char readCharTOrN() {
     string input;
     char znak;
@@ -35,45 +39,48 @@ char readCharTOrN() {
     return znak;
 }
 
-void breakString (Contact oneContact[], string line) {
+Contact breakString (string line) {
+    Contact oneContact;
     string singleData;
     size_t position;
 
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
-    oneContact[0].id = atoi(singleData.c_str());
+    oneContact.id = atoi(singleData.c_str());
     line.erase(line.begin(), line.begin() + position + 1);
 
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
-    oneContact[0].firstName = singleData;
+    oneContact.firstName = singleData;
     line.erase(line.begin(), line.begin() + position + 1);
 
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
-    oneContact[0].lastName = singleData;
+    oneContact.lastName = singleData;
     line.erase(line.begin(), line.begin() + position + 1);
 
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
-    oneContact[0].tel = singleData;
+    oneContact.tel = singleData;
     line.erase(line.begin(), line.begin() + position + 1);
 
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
-    oneContact[0].email = singleData;
+    oneContact.email = singleData;
     line.erase(line.begin(), line.begin() + position + 1);
 
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
-    oneContact[0].adress = singleData;
+    oneContact.adress = singleData;
     line.erase(line.begin(), line.begin() + position + 1);
+
+    return oneContact;
 
 }
 
 void importContacts(vector <Contact> &contacts) {
     fstream file;
-    Contact oneContact[1];
+    Contact oneContact;
     string line;
 
     file.open("kontakty.txt", ios::in);
@@ -82,43 +89,43 @@ void importContacts(vector <Contact> &contacts) {
     }
 
     while(getline(file, line)) {
-        breakString(oneContact, line);
-        contacts.push_back(oneContact[0]);
+        oneContact = breakString(line);
+        contacts.push_back(oneContact);
     }
     file.close();
 }
 
-addContact(vector <Contact> &contacts) {
-    Contact oneContact[1];
+void addContact(vector <Contact> &contacts) {
+    Contact oneContact;
 
     if (contacts.empty()) {
-        oneContact[0].id = 1;
+        oneContact.id = 1;
     } else {
-    oneContact[0].id = contacts[contacts.size()-1].id + 1;
+    oneContact.id = contacts[contacts.size()-1].id + 1;
     }
     cout << "Podaj imie: ";
-    oneContact[0].firstName = readLine();
+    oneContact.firstName = readLine();
     cout << "Podaj nazwisko: ";
-    oneContact[0].lastName = readLine();
+    oneContact.lastName = readLine();
     cout << "Podaj numer telefonu: ";
-    oneContact[0].tel = readLine();
+    oneContact.tel = readLine();
     cout << "Podaj adres email: ";
-    oneContact[0].email = readLine();
+    oneContact.email = readLine();
     cout << "Podaj adres zamieszkania: ";
-    oneContact[0].adress = readLine();
+    oneContact.adress = readLine();
 
-    contacts.push_back(oneContact[0]);
+    contacts.push_back(oneContact);
 
     fstream file;
 
     file.open("kontakty.txt", ios::out|ios::app);
 
-    file << oneContact[0].id << "|";
-    file << oneContact[0].firstName << "|";
-    file << oneContact[0].lastName << "|";
-    file << oneContact[0].tel << "|";
-    file << oneContact[0].email << "|";
-    file << oneContact[0].adress << "|" << endl;
+    file << oneContact.id << "|";
+    file << oneContact.firstName << "|";
+    file << oneContact.lastName << "|";
+    file << oneContact.tel << "|";
+    file << oneContact.email << "|";
+    file << oneContact.adress << "|" << endl;
 
     file.close();
 
@@ -137,7 +144,7 @@ void outputContactsByFirstName(vector <Contact> contacts) {
 
     for (int i = 0; i < contacts.size(); i++) {
         if (contacts[i].firstName == firstName) {
-            cout << "ID: " << contacts[i].id << ". |Imie: " << contacts[i].firstName << " |Nazwisko: " << contacts[i].lastName << " |Telefon: " << contacts[i].tel << " |Email: " << contacts[i].email << " |Adres: " << contacts[i].adress << endl;
+            outputContact(contacts, i);
             counter++;
         }
     }
@@ -156,7 +163,7 @@ void outputContactsByLastName(vector <Contact> contacts) {
 
     for (int i = 0; i < contacts.size(); i++) {
         if (contacts[i].lastName == lastName) {
-            cout << "ID: " << contacts[i].id << ". |Imie: " << contacts[i].firstName << " |Nazwisko: " << contacts[i].lastName << " |Telefon: " << contacts[i].tel << " |Email: " << contacts[i].email << " |Adres: " << contacts[i].adress << endl;
+            outputContact(contacts, i);
             counter++;
         }
     }
@@ -166,7 +173,7 @@ void outputContactsByLastName(vector <Contact> contacts) {
 void outputAllContacts(vector <Contact> contacts) {
     if (!contacts.empty()) {
         for (int i = 0; i < contacts.size(); i++) {
-            cout << "ID: " << contacts[i].id << ". |Imie: " << contacts[i].firstName << " |Nazwisko: " << contacts[i].lastName << " |Telefon: " << contacts[i].tel << " |Email: " << contacts[i].email << " |Adres: " << contacts[i].adress << endl;
+            outputContact(contacts, i);
         }
         cout << "Liczba znalezionych kontaktow: " << contacts.size() << endl;
     } else {
