@@ -8,7 +8,7 @@
 using namespace std;
 
 struct Contact {
-    int id;
+    int id, userId;
     string firstName, lastName, tel, email, adress;
 };
 
@@ -44,7 +44,7 @@ char readCharTOrN() {
     return znak;
 }
 
-Contact breakString (string line) {
+Contact breakStringForContact(string line) {
     Contact oneContact;
     string singleData;
     size_t position;
@@ -52,6 +52,11 @@ Contact breakString (string line) {
     position = line.find('|');
     singleData.assign(line.begin(), line.begin() + position);
     oneContact.id = atoi(singleData.c_str());
+    line.erase(line.begin(), line.begin() + position + 1);
+
+    position = line.find('|');
+    singleData.assign(line.begin(), line.begin() + position);
+    oneContact.userId = atoi(singleData.c_str());
     line.erase(line.begin(), line.begin() + position + 1);
 
     position = line.find('|');
@@ -83,7 +88,7 @@ Contact breakString (string line) {
 
 }
 
-void importContacts(vector <Contact> &contacts) {
+void importContacts(vector <Contact> &contacts, int userId) {
     fstream file;
     Contact oneContact;
     string line;
@@ -94,20 +99,28 @@ void importContacts(vector <Contact> &contacts) {
     }
 
     while(getline(file, line)) {
-        oneContact = breakString(line);
-        contacts.push_back(oneContact);
+        oneContact = breakStringForContact(line);
+        if (oneContact.userId == userId) contacts.push_back(oneContact);
     }
     file.close();
 }
 
-void addContact(vector <Contact> &contacts) {
+void addContact(vector <Contact> &contacts, int userId) {
     Contact oneContact;
+    string line;
+    fstream file;
 
-    if (contacts.empty()) {
-        oneContact.id = 1;
-    } else {
-    oneContact.id = contacts[contacts.size()-1].id + 1;
+    file.open("kontakty.txt", ios::in);
+
+    oneContact.id = 0;
+    while(getline(file, line)) {
+        oneContact.id = atoi(line.c_str());
     }
+    oneContact.id++;
+
+    file.close();
+
+    oneContact.userId = userId;
     cout << "Podaj imie: ";
     oneContact.firstName = readLine();
     cout << "Podaj nazwisko: ";
@@ -121,11 +134,10 @@ void addContact(vector <Contact> &contacts) {
 
     contacts.push_back(oneContact);
 
-    fstream file;
-
     file.open("kontakty.txt", ios::out|ios::app);
 
     file << oneContact.id << "|";
+    file << oneContact.userId << "|";
     file << oneContact.firstName << "|";
     file << oneContact.lastName << "|";
     file << oneContact.tel << "|";
@@ -359,15 +371,15 @@ void adressBook (int userId) {
     vector <Contact> contacts;
     int choice;
 
-    //importContacts(contacts);
+    importContacts(contacts, userId);
 
     while (1) {
         system("cls");
         cout << "||Ksiazka adresowa||" << endl;
-        cout << "1. Dodaj adresata" << endl;
-        cout << "2. Wyszukaj po imieniu" << endl;
-        cout << "3. Wyszukaj po nazwisku" << endl;
-        cout << "4. Wyswietl wszystkich adresatow" << endl;
+        cout << "1. Dodaj adresata OK" << endl;
+        cout << "2. Wyszukaj po imieniu OK" << endl;
+        cout << "3. Wyszukaj po nazwisku OK" << endl;
+        cout << "4. Wyswietl wszystkich adresatow OK" << endl;
         cout << "5. Usun adresata" << endl;
         cout << "6. Edytuj adresata" << endl;
         cout << "--------------------------------" << endl;
@@ -379,7 +391,7 @@ void adressBook (int userId) {
 
         switch (choice) {
         case 1:
-            addContact(contacts);
+            addContact(contacts, userId);
             system("pause");
             break;
         case 2:
@@ -512,7 +524,6 @@ void logIn(vector <User> users) {
         password = readLine();
         if (password == (*position).password) {
             adressBook((*position).id);
-            //cout << "zalogowany";
             return;
         }
         else cout << "Haslo nieprawidlowe. Pozostala ilosc prob: " << i-1 << endl;
