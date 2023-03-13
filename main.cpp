@@ -12,6 +12,11 @@ struct Contact {
     string firstName, lastName, tel, email, adress;
 };
 
+struct User {
+    int id;
+    string login, password;
+};
+
 string readLine() {
     string input;
     cin.sync();
@@ -204,21 +209,6 @@ void deleteContact(vector <Contact> &contacts, vector<Contact> :: iterator posit
     exportContactsToFile(contacts);
 }
 
-/*vector <Contact> :: iterator findId (vector <Contact> contacts) {
-    vector<Contact> :: iterator position = contacts.begin();
-    vector<Contact> :: iterator last = contacts.end();
-    int id;
-    cout << "Podaj ID kontaktu do usuniecia: ";
-    cin >> id;
-    while (position != last) {
-        if ((*position).id == id) {
-            return position;
-        }
-        position++;
-    }
-    return last;
-}*/
-
 void checkDeleteContact(vector <Contact> &contacts) {
     int id;
     char znak;
@@ -235,7 +225,6 @@ void checkDeleteContact(vector <Contact> &contacts) {
             break;
         }
     }
-    //position = findId(contacts);
 
     if (position == contacts.end()) {
         cout << "Brak kontaktu o podanym ID." << endl;
@@ -366,12 +355,11 @@ void checkEditContact(vector <Contact> &contacts) {
     }
 }
 
-
-int main() {
+void adressBook (int userId) {
     vector <Contact> contacts;
     int choice;
 
-    importContacts(contacts);
+    //importContacts(contacts);
 
     while (1) {
         system("cls");
@@ -382,7 +370,10 @@ int main() {
         cout << "4. Wyswietl wszystkich adresatow" << endl;
         cout << "5. Usun adresata" << endl;
         cout << "6. Edytuj adresata" << endl;
-        cout << "9. Zakoncz program" << endl;
+        cout << "--------------------------------" << endl;
+        cout << "7. Zmien haslo" << endl;
+        cout << "8. Wyloguj sie" << endl;
+        cout << "--------------------------------" << endl;
         cin.clear(); cin.sync();
         cin >> choice;
 
@@ -411,7 +402,148 @@ int main() {
             checkEditContact(contacts);
             system("pause");
             break;
-        case 9:
+        case 7:
+            //changePassword(contacts);
+            system("pause");
+            break;
+        case 8:
+            return;
+            break;
+        default:
+            cout << "Brak takiej opcji, wybierz ponownie." << endl;
+            system("pause");
+        }
+    }
+}
+
+User breakStringForUser (string line) {
+    User oneUser;
+    string singleData;
+    size_t position;
+
+    position = line.find('|');
+    singleData.assign(line.begin(), line.begin() + position);
+    oneUser.id = atoi(singleData.c_str());
+    line.erase(line.begin(), line.begin() + position + 1);
+
+    position = line.find('|');
+    singleData.assign(line.begin(), line.begin() + position);
+    oneUser.login = singleData;
+    line.erase(line.begin(), line.begin() + position + 1);
+
+    position = line.find('|');
+    singleData.assign(line.begin(), line.begin() + position);
+    oneUser.password = singleData;
+    line.erase(line.begin(), line.begin() + position + 1);
+
+    return oneUser;
+
+}
+
+void importUsers(vector <User> &users) {
+    fstream file;
+    User oneUser;
+    string line;
+
+    file.open("uzytkownicy.txt", ios::in);
+    if(!file.good()) {
+        return;
+    }
+
+    while(getline(file, line)) {
+        oneUser = breakStringForUser(line);
+        users.push_back(oneUser);
+    }
+    file.close();
+}
+
+void addUser(vector <User> &users) {
+    User oneUser;
+    vector <User> :: iterator position;
+
+    if (users.empty()) {
+        oneUser.id = 1;
+    } else {
+    oneUser.id = users[users.size()-1].id + 1;
+    }
+    cout << "Podaj login: ";
+    while (1) {
+        oneUser.login = readLine();
+        for (position = users.begin(); position != users.end(); position++) {
+            if ((*position).login == oneUser.login) break;
+        }
+        if (position == users.end()) break;
+        else cout << "Taki login istnieje, podaj inny login: ";
+    }
+
+    cout << "Podaj haslo: ";
+    oneUser.password = readLine();
+
+    users.push_back(oneUser);
+
+    fstream file;
+
+    file.open("uzytkownicy.txt", ios::out|ios::app);
+
+    file << oneUser.id << "|";
+    file << oneUser.login << "|";
+    file << oneUser.password << "|" << endl;
+
+    file.close();
+
+    cout << "Konto zostalo utworzone." << endl;
+}
+
+void logIn(vector <User> users) {
+    string login, password;
+    vector <User> :: iterator position;
+
+    cout << "Podaj login: ";
+    while (1) {
+        login = readLine();
+        for (position = users.begin(); position != users.end(); position++) {
+            if ((*position).login == login) break;
+        }
+        if (position != users.end()) break;
+        else cout << "Taki login nie istnieje, podaj inny login: ";
+    }
+    for (int i = 3; i > 0; i--) {
+        cout << "Podaj haslo: ";
+        password = readLine();
+        if (password == (*position).password) {
+            adressBook((*position).id);
+            //cout << "zalogowany";
+            return;
+        }
+        else cout << "Haslo nieprawidlowe. Pozostala ilosc prob: " << i-1 << endl;
+    }
+}
+
+int main() {
+    vector <User> users;
+    int choice;
+
+    importUsers(users);
+
+    while (1) {
+        system("cls");
+        cout << "||Menu glowne||" << endl;
+        cout << "1. Logowanie" << endl;
+        cout << "2. Rejestracja" << endl;
+        cout << "3. Zamknij program" << endl;
+        cin.clear(); cin.sync();
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            logIn(users);
+            system("pause");
+            break;
+        case 2:
+            addUser(users);
+            system("pause");
+            break;
+        case 3:
             return 0;
             break;
         default:
