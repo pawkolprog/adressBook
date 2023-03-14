@@ -198,30 +198,49 @@ void outputAllContacts(vector <Contact> contacts) {
     }
 }
 
-void exportContactsToFile(vector <Contact> contacts) {
-    fstream file;
-    vector<Contact> :: iterator position;
-    file.open("kontakty.txt", ios::out);
+void editContactInFile(vector <Contact> contacts, vector <Contact> :: iterator position) {
+    fstream file1, file2;
+    string line;
 
-    for (vector<Contact> :: iterator position = contacts.begin(); position != contacts.end(); ++position) {
-        file << (*position).id << "|";
-        file << (*position).firstName << "|";
-        file << (*position).lastName << "|";
-        file << (*position).tel << "|";
-        file << (*position).email << "|";
-        file << (*position).adress << "|" << endl;
+    file1.open("kontakty.txt", ios::in);
+    file2.open("kontakty_tymczasowe.txt", ios::out);
+
+    while(getline(file1, line)) {
+        if (atoi(line.c_str()) == (*position).id) {
+            file2 << (*position).id << "|";
+            file2 << (*position).userId << "|";
+            file2 << (*position).firstName << "|";
+            file2 << (*position).lastName << "|";
+            file2 << (*position).tel << "|";
+            file2 << (*position).email << "|";
+            file2 << (*position).adress << "|" << endl;
+        } else file2 << line << endl;
     }
+    file1.close();
+    file2.close();
 
-    file.close();
-
+    remove("kontakty.txt");
+    rename("kontakty_tymczasowe.txt", "kontakty.txt");
 }
 
-void deleteContact(vector <Contact> &contacts, vector<Contact> :: iterator position) {
-    contacts.erase(position);
-    exportContactsToFile(contacts);
+void deleteContactInFile(vector <Contact> contacts, vector <Contact> :: iterator position) {
+    fstream file1, file2;
+    string line;
+
+    file1.open("kontakty.txt", ios::in);
+    file2.open("kontakty_tymczasowe.txt", ios::out);
+
+    while(getline(file1, line)) {
+        if (atoi(line.c_str()) != (*position).id) file2 << line << endl;
+    }
+    file1.close();
+    file2.close();
+
+    remove("kontakty.txt");
+    rename("kontakty_tymczasowe.txt", "kontakty.txt");
 }
 
-void checkDeleteContact(vector <Contact> &contacts) {
+void deleteContact(vector <Contact> &contacts) {
     int id;
     char znak;
     vector <Contact> :: iterator position;
@@ -246,7 +265,8 @@ void checkDeleteContact(vector <Contact> &contacts) {
         cout << "Czy usunac ten kontakt? (t/n)";
         znak = readCharTOrN();
         if (znak == 't') {
-            deleteContact(contacts, position);
+            deleteContactInFile(contacts, position);
+            contacts.erase(position);
             cout << "Kontakt zostal usuniety." << endl;
         } else if (znak == 'n') {
         cout << "Kontakt nie zostal usuniety." << endl;
@@ -259,7 +279,7 @@ void editAdressOfContact(vector <Contact> &contacts, vector <Contact> :: iterato
     cout << "Podaj adres do zmiany: ";
     adress = readLine();
     (*position).adress = adress;
-    exportContactsToFile(contacts);
+    editContactInFile(contacts, position);
     cout << "Adres zmieniony." << endl;
 }
 
@@ -268,7 +288,7 @@ void editEmailOfContact(vector <Contact> &contacts, vector <Contact> :: iterator
     cout << "Podaj adres email do zmiany: ";
     email = readLine();
     (*position).email = email;
-    exportContactsToFile(contacts);
+    editContactInFile(contacts, position);
     cout << "Adres email zmieniony." << endl;
 }
 
@@ -277,7 +297,7 @@ void editTelOfContact(vector <Contact> &contacts, vector <Contact> :: iterator p
     cout << "Podaj numer telefonu do zmiany: ";
     tel = readLine();
     (*position).tel = tel;
-    exportContactsToFile(contacts);
+    editContactInFile(contacts, position);
     cout << "Numer telefonu zmieniony." << endl;
 }
 
@@ -286,7 +306,7 @@ void editLastNameOfContact(vector <Contact> &contacts, vector <Contact> :: itera
     cout << "Podaj nazwisko do zmiany: ";
     lastName = readLine();
     (*position).lastName = lastName;
-    exportContactsToFile(contacts);
+    editContactInFile(contacts, position);
     cout << "Nazwisko zmienione." << endl;
 }
 
@@ -295,7 +315,7 @@ void editFirstNameOfContact(vector <Contact> &contacts, vector <Contact> :: iter
     cout << "Podaj imie do zmiany: ";
     firstName = readLine();
     (*position).firstName = firstName;
-    exportContactsToFile(contacts);
+    editContactInFile(contacts, position);
     cout << "Imie zmienione." << endl;
 }
 
@@ -318,18 +338,23 @@ void editContact(vector <Contact> &contacts, vector <Contact> :: iterator positi
         switch (choice) {
         case 1:
             editFirstNameOfContact(contacts, position);
+            system("pause");
             break;
         case 2:
             editLastNameOfContact(contacts, position);
+            system("pause");
             break;
         case 3:
             editTelOfContact(contacts, position);
+            system("pause");
             break;
         case 4:
             editEmailOfContact(contacts, position);
+            system("pause");
             break;
         case 5:
             editAdressOfContact(contacts, position);
+            system("pause");
             break;
         case 6:
             return;
@@ -341,6 +366,17 @@ void editContact(vector <Contact> &contacts, vector <Contact> :: iterator positi
     }
 }
 
+void exportUsersToFile(vector <User> users) {
+    fstream file;
+    file.open("uzytkownicy.txt", ios::out);
+
+    for (vector<User> :: iterator position = users.begin(); position != users.end(); ++position) {
+        file << (*position).id << "|";
+        file << (*position).login << "|";
+        file << (*position).password << "|" << endl;
+    }
+    file.close();
+}
 
 void checkEditContact(vector <Contact> &contacts) {
     int id;
@@ -357,17 +393,28 @@ void checkEditContact(vector <Contact> &contacts) {
             break;
         }
     }
-    //position = findId(contacts);
-
     if (position == contacts.end()) {
         cout << "Brak kontaktu o podanym ID." << endl;
-        system("pause");
     } else {
         editContact(contacts, position);
     }
 }
 
-void adressBook (int userId) {
+void changePassword(vector <User> &users, int userId) {
+    string newPassword;
+    vector <User> :: iterator position;
+
+    for (position = users.begin(); position != users.end(); position++) {
+        if ((*position).id == userId) break;
+    }
+    cout << "Podaj nowe haslo: ";
+    newPassword = readLine();
+    (*position).password = newPassword;
+    exportUsersToFile(users);
+    cout << "Haslo zostalo zmienione" << endl;
+}
+
+void adressBook (vector <User> &users, int userId) {
     vector <Contact> contacts;
     int choice;
 
@@ -376,10 +423,10 @@ void adressBook (int userId) {
     while (1) {
         system("cls");
         cout << "||Ksiazka adresowa||" << endl;
-        cout << "1. Dodaj adresata OK" << endl;
-        cout << "2. Wyszukaj po imieniu OK" << endl;
-        cout << "3. Wyszukaj po nazwisku OK" << endl;
-        cout << "4. Wyswietl wszystkich adresatow OK" << endl;
+        cout << "1. Dodaj adresata" << endl;
+        cout << "2. Wyszukaj po imieniu" << endl;
+        cout << "3. Wyszukaj po nazwisku" << endl;
+        cout << "4. Wyswietl wszystkich adresatow" << endl;
         cout << "5. Usun adresata" << endl;
         cout << "6. Edytuj adresata" << endl;
         cout << "--------------------------------" << endl;
@@ -407,15 +454,14 @@ void adressBook (int userId) {
             system("pause");
             break;
         case 5:
-            checkDeleteContact(contacts);
+            deleteContact(contacts);
             system("pause");
             break;
         case 6:
             checkEditContact(contacts);
-            system("pause");
             break;
         case 7:
-            //changePassword(contacts);
+            changePassword(users, userId);
             system("pause");
             break;
         case 8:
@@ -504,9 +550,10 @@ void addUser(vector <User> &users) {
     file.close();
 
     cout << "Konto zostalo utworzone." << endl;
+    system("pause");
 }
 
-void logIn(vector <User> users) {
+void logIn(vector <User> &users) {
     string login, password;
     vector <User> :: iterator position;
 
@@ -523,11 +570,12 @@ void logIn(vector <User> users) {
         cout << "Podaj haslo: ";
         password = readLine();
         if (password == (*position).password) {
-            adressBook((*position).id);
+            adressBook(users, (*position).id);
             return;
         }
         else cout << "Haslo nieprawidlowe. Pozostala ilosc prob: " << i-1 << endl;
     }
+    system("pause");
 }
 
 int main() {
@@ -548,11 +596,9 @@ int main() {
         switch (choice) {
         case 1:
             logIn(users);
-            system("pause");
             break;
         case 2:
             addUser(users);
-            system("pause");
             break;
         case 3:
             return 0;

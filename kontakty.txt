@@ -1,9 +1,0 @@
-1|2|Pawel|Kolo|534534534|gr@op.pl|jfkddk 4/5|
-2|2|piter|kakak|574389573|kfdlkfld|5/4|
-3|1|Antek|Kowalski|78437493|jfkdfjk@pl|jatki 3/4|
-4|3|Aneta|Krabska|489380439|jsk@op.pl|Warszawa 3|
-5|1|Domino|Rubik|4390943|jdksjds@gmail.com|Wroclawska 4/5|
-6|1|dsds|dsds|dsds|dsds|dsds|
-7|3|hythyt|grtrt|grtgrt|gtrgtr|grtgtr|
-8|2|Domino|ksoakaso|4390943|gmail.com|fdfgdfgdf 4/5|
-9|1|Domino|Kowalski|435435443|dsds@gmail.com|hhh 4/5|
