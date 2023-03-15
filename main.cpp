@@ -159,7 +159,7 @@ void outputContactsByFirstName(vector <Contact> contacts) {
     cout << "Podaj imie do wyszukania: ";
     cin >> firstName;
 
-    for (int i = 0; i < contacts.size(); i++) {
+    for (int i = 0; i < (int) contacts.size(); i++) {
         if (contacts[i].firstName == firstName) {
             outputContact(contacts, i);
             counter++;
@@ -178,7 +178,7 @@ void outputContactsByLastName(vector <Contact> contacts) {
     cout << "Podaj nazwisko do wyszukania: ";
     cin >> lastName;
 
-    for (int i = 0; i < contacts.size(); i++) {
+    for (int i = 0; i < (int) contacts.size(); i++) {
         if (contacts[i].lastName == lastName) {
             outputContact(contacts, i);
             counter++;
@@ -189,7 +189,7 @@ void outputContactsByLastName(vector <Contact> contacts) {
 
 void outputAllContacts(vector <Contact> contacts) {
     if (!contacts.empty()) {
-        for (int i = 0; i < contacts.size(); i++) {
+        for (int i = 0; i < (int) contacts.size(); i++) {
             outputContact(contacts, i);
         }
         cout << "Liczba znalezionych kontaktow: " << contacts.size() << endl;
